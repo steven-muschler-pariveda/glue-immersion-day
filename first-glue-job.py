@@ -16,10 +16,10 @@ spark = glueContext.spark_session
 job = Job(glueContext)
 job.init(args['JOB_NAME'], args)
 ## @type: DataSource
-## @args: [format_options = {"jsonPath":"","multiline":False}, connection_type = "s3", format = "json", connection_options = {"paths": ["s3://jd-immersion-day-test-dincher/dms-replicate/labdb/customers/"], "recurse":True}, transformation_ctx = "DataSource0"]
+## @args: [format_options = {"jsonPath":"","multiline":False}, connection_type = "s3", format = "json", connection_options = {"paths": ["s3://INSERT_BUCKET_NAME/dms-replicate/labdb/customers/"], "recurse":True}, transformation_ctx = "DataSource0"]
 ## @return: DataSource0
 ## @inputs: []
-DataSource0 = glueContext.create_dynamic_frame.from_options(format_options = {"jsonPath":"","multiline":False}, connection_type = "s3", format = "json", connection_options = {"paths": ["s3://jd-immersion-day-test-dincher/dms-replicate/labdb/customers/"], "recurse":True}, transformation_ctx = "DataSource0")
+DataSource0 = glueContext.create_dynamic_frame.from_options(format_options = {"jsonPath":"","multiline":False}, connection_type = "s3", format = "json", connection_options = {"paths": ["s3://INSERT_BUCKET_NAME/dms-replicate/labdb/customers/"], "recurse":True}, transformation_ctx = "DataSource0")
 ## @type: ApplyMapping
 ## @args: [mappings = [("operation", "string", "operation", "string"), ("data._id.$oid", "string", "data._id.oid", "string"), ("data.custid", "int", "data.custid", "int"), ("data.trafficfrom", "string", "data.trafficfrom", "string"), ("data.url", "string", "data.url", "string"), ("data.device", "string", "data.device", "string"), ("data.touchproduct", "int", "data.touchproduct", "int"), ("data.trans_timestamp", "string", "data.trans_timestamp", "string")], transformation_ctx = "Transform0"]
 ## @return: Transform0
@@ -32,6 +32,6 @@ DataFrame1 = DataFrame0.select("operation", "data.*")
 ## Extract year/month
 DatesDataFrame0 = DataFrame1.withColumn("year_month", concat(year(DataFrame1.trans_timestamp).cast("string"), date_format(DataFrame1.trans_timestamp, "MM").cast("string")))
 
-DatesDataFrame0.write.option("compression","gzip").partitionBy("year_month").parquet("s3://jd-immersion-day-test-dincher/dms_parquet/customer/",mode="overwrite")
+DatesDataFrame0.write.option("compression","gzip").partitionBy("year_month").parquet("s3://INSERT_BUCKET_NAME/dms_parquet/customer/",mode="overwrite")
 
 job.commit()
